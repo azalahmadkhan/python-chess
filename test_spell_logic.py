@@ -43,3 +43,14 @@ class TestNewGameResetsBoard:
 #  Write tests that check the rules from SPELL_CHESS_RULES.md.        #
 #  If a test fails, you've found a bug — document it!                 #
 # ------------------------------------------------------------------ #
+
+# https://python-chess.readthedocs.io/en/latest/core.html
+
+class TestFreezeCasting:
+
+    def test_freeze_any_square_center(self):
+        for square in chess.SQUARES:
+            game = SpellChessGame()
+            success = game.cast_freeze(square)  # returns True if cast succeeded
+            assert success is True
+            # print(f"{chess.square_name(square)}: {success}")
