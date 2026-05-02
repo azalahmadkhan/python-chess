@@ -54,3 +54,17 @@ class TestFreezeCasting:
             success = game.cast_freeze(square)  # returns True if cast succeeded
             assert success is True
             # print(f"{chess.square_name(square)}: {success}")
+
+    def test_freeze_includes_bordering_squares(self):
+        for center in chess.SQUARES:
+            # print(f"Test {chess.square_rank(center)} {chess.square_file(center)} {chess.square_name(center)}")
+            square = squares_in_3x3(center)
+            for s in square:
+                dist = chess.square_distance(center, s)
+                assert dist <= 1
+
+    def test_freeze_includes_center(self):
+        for square in chess.SQUARES:
+            area = squares_in_3x3(square)
+            # print(f"{chess.square_name(square)}")
+            assert square in area
