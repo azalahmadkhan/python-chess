@@ -68,9 +68,9 @@ class TestNewGameReset:
 
     def test_new_game_resets_jump_charges(self):
         game = SpellChessGame()
-        game.freeze_remaining[chess.WHITE] = 2
-        game.freeze_remaining[chess.BLACK] = 1
+        game.jump_remaining[chess.WHITE] = 1
+        game.jump_remaining[chess.BLACK] = 0
         game.new_game()
         #charge return to default values
-        assert game.freeze_remaining[chess.WHITE] == 5
-        assert game.freeze_remaining[chess.BLACK] == 5
+        assert game.jump_remaining[chess.WHITE] == 3
+        assert game.jump_remaining[chess.BLACK] == 3
