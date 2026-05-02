@@ -99,7 +99,7 @@ class TestJumpCastLimit:
         # Black Turn - is able to jump
         assert game.cast_jump(chess.A8, chess.B6)
 
-class TestJumpOnOwnPieces:
+class TestJumpSelectedPieceColor:
     """The Jump spell should only be able to be cast on one's own pieces"""
 
     def test_white_jump_casts_on_white_piece(self):
@@ -131,6 +131,70 @@ class TestJumpOnOwnPieces:
 
         # Black Turn - cast jump on white piece
         assert not game.cast_jump(chess.C8, chess.C6)
+
+class TestJumpSelectedEmpty:
+    """The Jump spell should not be able to cast on an empty square"""
+
+    def test_jump_cant_cast_on_empty_square(self):
+        game = SpellChessGame()
+        assert not game.cast_jump(chess.E3, chess.F4)
+
+class TestJumpSelectedKing:
+    """The Jump spell should not be able to be cast on your king"""
+    
+    def test_jump_cant_cast_on_king(self):
+        game = SpellChessGame()
+        assert not game.cast_jump(chess.E1, chess.E3)
+
+class TestJumpDestinationEmpty:
+    """The Jump spell should only allow an empty destination"""
+
+    def test_cant_jump_to_ally_destination(self):
+        game = SpellChessGame()
+        assert not game.cast_jump(chess.B1, chess.D1)
+
+    def test_cant_jump_to_opponent_destination(self):
+        game = SpellChessGame()
+        game.make_move(chess.E2, chess.E4)
+        game.make_move(chess.D7, chess.D5)
+        game.make_move(chess.E4, chess.E5)
+        game.make_move(chess.D5, chess.D4)
+        assert not game.cast_jump(chess.E5, chess.E7)
+
+class TestJumpOutsideChebyshevDistance:
+    """The Jump spell should only be able to cast within chebyshev distance 2"""
+
+    def test_cant_jump_3_vertical_up(self):
+        game = SpellChessGame()
+        assert not game.cast_jump(chess.E1, chess.E5)
+
+    def test_cant_jump_3_vertical_down(self):
+        game = SpellChessGame()
+        game.make_move(chess.E2, chess.E4)
+        game.make_move(chess.E7, chess.E6)
+        game.make_move(chess.E4, chess.E5)
+        game.make_move(chess.D7, chess.D6)
+        assert not game.cast_jump(chess.E5, chess.E2)
+
+    def test_cant_jump_3_horizontal_right(self):
+        game = SpellChessGame()
+        game.make_move(chess.E2, chess.E3)
+        game.make_move(chess.E7, chess.E6)
+        assert not game.cast_jump(chess.E3, chess.H3)
+
+    def test_cant_jump_3_horizontal_left(self):
+        game = SpellChessGame()
+        game.make_move(chess.E2, chess.E3)
+        game.make_move(chess.E7, chess.E6)
+        assert not game.cast_jump(chess.E3, chess.B3)
+
+    def test_cant_jump_3_diagonal(self):
+        game = SpellChessGame()
+        assert not game.make_move(chess.E2, chess.B5)
+
+
+
+
 
 
 
