@@ -55,12 +55,22 @@ class TestFreezeCasting:
             assert success is True
             # print(f"{chess.square_name(square)}: {success}")
 
-class TestNewGameRest:
+class TestNewGameReset:
 
     def test_new_game_resets_freeze_charges(self):
         game = SpellChessGame()
         game.freeze_remaining[chess.WHITE] = 2
         game.freeze_remaining[chess.BLACK] = 1
+        game.new_game() #resets the game
+        #charge return to default values
+        assert game.freeze_remaining[chess.WHITE] == 5
+        assert game.freeze_remaining[chess.BLACK] == 5
+
+    def test_new_game_resets_jump_charges(self):
+        game = SpellChessGame()
+        game.freeze_remaining[chess.WHITE] = 2
+        game.freeze_remaining[chess.BLACK] = 1
         game.new_game()
+        #charge return to default values
         assert game.freeze_remaining[chess.WHITE] == 5
         assert game.freeze_remaining[chess.BLACK] == 5
