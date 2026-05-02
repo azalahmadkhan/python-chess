@@ -51,12 +51,12 @@ class TestTurnOrder:
         game = SpellChessGame()
         assert game.current_turn() == chess.WHITE
 
-    def test_black_turn_second(self):
+    def test_turn_change_to_black(self):
         game = SpellChessGame()
         game.make_move(chess.E2, chess.E3)
         assert game.current_turn() == chess.BLACK
 
-    def test_white_turn_third(self):
+    def test_turn_change_to_white(self):
         game = SpellChessGame()
         game.make_move(chess.E2, chess.E3)
         game.make_move(chess.E7, chess.E6)
@@ -102,19 +102,19 @@ class TestJumpCastLimit:
 class TestJumpSelectedPieceColor:
     """The Jump spell should only be able to be cast on one's own pieces"""
 
-    def test_white_jump_casts_on_white_piece(self):
+    def test_white_casts_jump_on_white_piece(self):
         game = SpellChessGame()
 
         # White Turn - cast jump on white piece
         assert game.cast_jump(chess.A1, chess.B2)
 
-    def test_white_jump_cant_cast_on_black_piece(self):
+    def test_white_cant_cast_jump_on_black_piece(self):
         game = SpellChessGame()
 
         # White Turn - cast jump on black piece
         assert not game.cast_jump(chess.C8, chess.C6)
 
-    def test_black_jump_casts_on_black_piece(self):
+    def test_black_casts_jump_on_black_piece(self):
         game = SpellChessGame()
 
         # Write Turn - move piece
@@ -123,7 +123,7 @@ class TestJumpSelectedPieceColor:
         # Black Turn - cast jump on black piece
         assert game.cast_jump(chess.H8, chess.H6)
 
-    def test_black_jump_cant_cast_on_white_piece(self):
+    def test_black_cant_cast_jump_on_white_piece(self):
         game = SpellChessGame()
 
         # Write Turn - move piece
