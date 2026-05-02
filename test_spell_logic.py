@@ -68,3 +68,13 @@ class TestFreezeCasting:
             area = squares_in_3x3(square)
             # print(f"{chess.square_name(square)}")
             assert square in area
+
+class TestFreezeEffect:
+
+    def test_freeze_affects_opponent_not_caster(self):
+        game = SpellChessGame()
+        # White casts freeze
+        game.cast_freeze(chess.E5)
+        
+        # # The frozen color should be different from the caster's color
+        assert game.freeze_effect_color != game.current_turn()
