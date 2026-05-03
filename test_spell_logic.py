@@ -232,9 +232,7 @@ class TestJumpCantCapture:
         assert game.board.piece_at(chess.E4) == chess.Piece.from_symbol('p')
 
 class TestFreezeCharges:
-    """Each side begins the game with 5 freeze charges. 
-    After casting a freeze spell, remaining charges reduces by 1. 
-    Cannot cast a freeze spell if remaining charges is zero. """
+    """Each side begins the game with 5 freeze charges. After casting a freeze spell, remaining charges reduces by 1. Cannot cast a freeze spell if remaining charges is zero. """
 
     def test_white_freeze_charges(self):
         game = SpellChessGame()
@@ -257,9 +255,7 @@ class TestFreezeCharges:
         assert success is False, "Cannot cast Freeze spell, when th echarges remaining is zero"
          
 class TestJumpCharges:
-    """Each side begins the game with 3 jump charges.
-    After casting a jump spell, remaining charges reduces by 1. 
-    Cannot cast a jump spell if remaining charges is zero. """
+    """Each side begins the game with 3 jump charges. After casting a jump spell, remaining charges reduces by 1. Cannot cast a jump spell if remaining charges is zero. """
 
     def test_white_jump_charges(self):
         game = SpellChessGame()
@@ -280,6 +276,94 @@ class TestJumpCharges:
         game.jump_remaining[chess.WHITE]=0
         success = game.cast_jump(chess.G2, chess.G4)
         assert success is False, "Cannot cast Jump spell, when th echarges remaining is zero"
+
+class TestNewGameResetsBoard:
+    """Calling new_game() should bring the board back to the starting position."""
+
+    def test_board_resets_after_moves(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.new_game()
+        assert game.board.fen() == chess.STARTING_FEN
+        
+class TestNewGameResetsFreezeCharges:
+    """Calling new_game() should reset freeze charges to 5 for both sides."""
+
+    def test_white_freeze_charges_new_game(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.freeze_remaining[chess.WHITE]= 3
+        game.new_game()
+        assert game.freeze_remaining[chess.WHITE]== 5
+        
+    def test_black_freeze_charges_new_game(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.freeze_remaining[chess.BLACK]= 3
+        game.new_game()
+        assert game.freeze_remaining[chess.BLACK]== 5
+        
+class TestNewGameResetsFreezeCooldown:
+    """Calling new_game() should reset freeze cooldown to 0 for both sides."""
+
+    def test_white_freeze_cooldown_new_game(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.freeze_cooldown[chess.WHITE]= 3
+        game.new_game()
+        assert game.freeze_cooldown[chess.WHITE]== 0
+        
+    def test_black_freeze_cooldown_new_game(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.freeze_cooldown[chess.BLACK]= 3
+        game.new_game()
+        assert game.freeze_cooldown[chess.BLACK]== 0
+        
+class TestNewGameResetsFreezeEffect:
+    """Calling new_game() should remove any remaining freeze effects."""
+
+    def test_white_freeze_cooldown_new_game(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.freeze_effect_color == chess.WHITE
+        game.new_game()
+        assert game.freeze_effect_color == None
+    
+        
+class TestNewGameResetsJumpCharges:
+    """Calling new_game() should reset jump charges to 3 for both sides. """       
+    
+    def test_white_jump_charges(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.jump_remaining[chess.WHITE]= 1
+        game.new_game()
+        assert game.jump_remaining[chess.WHITE]== 3
+        
+    def test_black_jump_charges(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.jump_remaining[chess.BLACK]= 1
+        game.new_game()
+        assert game.jump_remaining[chess.BLACK]== 3
+        
+class TestNewGameResetsJumpCooldown:
+    """Calling new_game() should reset jump cooldown to 0 for both sides. """       
+    
+    def test_white_jump_charges(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.jump_cooldown[chess.WHITE]= 1
+        game.new_game()
+        assert game.jump_cooldown[chess.WHITE]== 0
+        
+    def test_black_jump_charges(self):
+        game = SpellChessGame()
+        game.board.push_san("e4")
+        game.jump_cooldown[chess.BLACK]= 1
+        game.new_game()
+        assert game.jump_cooldown[chess.BLACK]== 0
 
 
 
