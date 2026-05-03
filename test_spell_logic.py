@@ -54,3 +54,17 @@ class TestFreezeCasting:
             success = game.cast_freeze(square)  # returns True if cast succeeded
             assert success is True
             # print(f"{chess.square_name(square)}: {success}")
+
+class TestJumpDestinationEmpty:
+    "The jump destination for any valid piece must be empty."
+
+    def test_jump_on_own_piece(self):
+        game = SpellChessGame()
+        # white pawn jump on white pawn should reject
+        assert game.cast_jump(chess.A2, chess.C2) is False
+
+    def test_jump_on_opponent_piece(self):
+        game = SpellChessGame()
+        # set a black pawn within valid jumping distance of white pawn, and jump.
+        game.board.set_piece_at(chess.A4, chess.Piece(chess.PAWN, chess.BLACK))
+        assert game.cast_jump(chess.A2, chess.A4) is False
