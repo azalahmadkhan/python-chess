@@ -98,8 +98,56 @@ class TestMovement:
 class TestPawnMovement:
     """Pawns should follow standard pawn movement rules"""
 
-class TestPawnCapturing:
-    """Pawns should follow standard pawn capturing rules"""
+    def test_white_pawn_move_forward(self):
+        game = SpellChessGame()
+        assert game.make_move(chess.E2, chess.E3)
+
+    def test_black_pawn_move_forward(self):
+        game = SpellChessGame()
+        game.board.turn = chess.BLACK
+        assert game.make_move(chess.D7, chess.D6)
+
+    def test_pawn_move_forward_two_at_start(self):
+        game = SpellChessGame()
+        assert game.make_move(chess.E2, chess.E4)
+
+    def test_pawn_move_forward_two_on_later_turn(self):
+        game = SpellChessGame()
+        game.make_move(chess.E2, chess.E4)
+        game.make_move(chess.B7, chess.B6)
+        assert game.make_move(chess.D2, chess.D4)
+
+    def test_pawn_cant_move_forward_two_after_first_movement(self):
+        game = SpellChessGame()
+        game.make_move(chess.E2, chess.E3)
+        game.make_move(chess.B7, chess.B6)
+        assert not game.make_move(chess.E3, chess.E5)
+
+    def test_pawn_enemy_piece_blocks(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.E3, chess.Piece.from_symbol('p'))
+        assert not game.make_move(chess.E2, chess.E3)
+        assert not game.make_move(chess.E2, chess.E4)
+
+    def test_pawn_no_diagonal_movement(self):
+        game = SpellChessGame()
+        assert not game.make_move(chess.E2, chess.D3)
+        assert not game.make_move(chess.E2, chess.F3)
+
+    def test_pawn_no_backward_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D5, chess.Piece.from_symbol('P'))
+        assert not game.make_move(chess.D5, chess.D4)
+        assert not game.make_move(chess.D5, chess.C4)
+        assert not game.make_move(chess.D5, chess.E4)
+
+    def test_pawn_diagonal_capture(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D3, chess.Piece.from_symbol('p'))
+        game.board.set_piece_at(chess.E3, chess.Piece.from_symbol('p'))
+        assert game.make_move(chess.C2, chess.D3)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.F2, chess.E3)
 
 class TestPawnEnPassant:
     """En passant should work properly as a pawn capturing move"""
@@ -176,20 +224,12 @@ class TestJumpSelectedPieceColor:
 
     def test_black_casts_jump_on_black_piece(self):
         game = SpellChessGame()
-
-        # Write Turn - move piece
-        game.make_move(chess.E2, chess.E4)
-
-        # Black Turn - cast jump on black piece
+        game.board.turn = chess.BLACK
         assert game.cast_jump(chess.H8, chess.H6)
 
     def test_black_cant_cast_jump_on_white_piece(self):
         game = SpellChessGame()
-
-        # Write Turn - move piece
-        game.make_move(chess.E2, chess.E4)
-
-        # Black Turn - cast jump on white piece
+        game.board.turn = chess.BLACK
         assert not game.cast_jump(chess.C1, chess.C3)
 
 class TestJumpSelectedEmpty:
