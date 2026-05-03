@@ -74,3 +74,17 @@ class TestNewGameReset:
         #charge return to default values
         assert game.jump_remaining[chess.WHITE] == 3
         assert game.jump_remaining[chess.BLACK] == 3
+        
+class TestKingJump:
+    "The king cannot be selected for use with jump spell."
+
+    def test_king_cannot_jump(self):
+        game = SpellChessGame()
+        assert game.cast_jump(chess.E1, chess.E3) is False
+        
+class TestJumpRange:
+    "Chebyshev distance 3 should be rejected."
+
+    def test_over_chebyshev_range(self):
+        game = SpellChessGame()
+        assert game.cast_jump(chess.B1, chess.B4) is False
