@@ -365,6 +365,63 @@ class TestNewGameResetsJumpCooldown:
         game.new_game()
         assert game.jump_cooldown[chess.BLACK]== 0
 
+class TestFreezeCooldown:
+    """After Freeze spell, the caster enters a 3 turn cooldown. Cooldown reduced by 1 at the start of each of the caster's turn. Cannot freeze until cooldown reaches 0 again."""
+    def test_freeze_cooldown(self):
+        game = SpellChessGame()
+        game.cast_freeze(chess.H8)
+        game.make_move(chess.E2, chess.E3)
+        assert game.freeze_cooldown[chess.WHITE]== 3
+        
+    def test_freeze_cooldown_reduction(self):
+        game = SpellChessGame()
+        game.cast_freeze(chess.H8)
+        initial = game.freeze_cooldown[chess.WHITE]
+        game.board.turn = chess.WHITE
+        game.on_turn_start()
+        assert game.freeze_cooldown[chess.WHITE]== initial - 1
+        
+    def test_freeze_cooldown_nonzero(self):
+        game = SpellChessGame()
+        game.freeze_cooldown[chess.WHITE]= 2
+        success = game.cast_freeze(chess.H8)
+        assert success is False
+        
+    def test_freeze_cooldown_zero(self):
+        game = SpellChessGame()
+        game.freeze_cooldown[chess.WHITE]= 0
+        success = game.cast_freeze(chess.H8)
+        assert success is True
+        
+        
+class TestJumpCooldown:
+    """After Jump spell, the caster enters a 2 turn cooldown. Cooldown reduced by 1 at the start of each of the caster's turn. Cannot jump until cooldown reaches 0 again."""
+    def test_jump_cooldown(self):
+        game = SpellChessGame()
+        game.cast_jump(chess.G2, chess.G4)
+        game.make_move(chess.E2, chess.E3)
+        assert game.jump_cooldown[chess.WHITE]== 2
+        
+    def test_jump_cooldown_reduction(self):
+        game = SpellChessGame()
+        game.cast_jump(chess.G2, chess.G4)
+        initial = game.jump_cooldown[chess.WHITE]
+        game.board.turn = chess.WHITE
+        game.on_turn_start()
+        assert game.jump_cooldown[chess.WHITE]== initial - 1
+        
+    def test_jump_cooldown_nonzero(self):
+        game = SpellChessGame()
+        game.jump_cooldown[chess.WHITE]=2
+        success = game.cast_jump(chess.G2, chess.G4)
+        assert success is False
+        
+    def test_jump_cooldown_zero(self):
+        game = SpellChessGame()
+        game.jump_cooldown[chess.WHITE]= 0
+        success = game.cast_jump(chess.G2, chess.G4)
+        assert success is True
+
 
 
 
