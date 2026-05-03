@@ -54,3 +54,10 @@ class TestFreezeCasting:
             success = game.cast_freeze(square)  # returns True if cast succeeded
             assert success is True
             # print(f"{chess.square_name(square)}: {success}")
+
+class TestJumpRange:
+    "Chebyshev distance 3 should be rejected."
+
+    def test_over_chebyshev_range(self):
+        game = SpellChessGame()
+        assert game.cast_jump(chess.B1, chess.B4) is False
