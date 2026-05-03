@@ -62,6 +62,44 @@ class TestTurnOrder:
         game.make_move(chess.E7, chess.E6)
         assert game.current_turn() == chess.WHITE
 
+class TestMovement:
+    """Making a valid move should correctly change the position of the moved piece and shall properly capture enemy pieces at the destination"""
+
+    def test_starting_square_of_moved_piece_empty(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('R'))
+
+        game.make_move(chess.D4, chess.F4)
+        assert game.board.piece_at(chess.D4) == None
+
+    
+    def test_moved_piece_at_destination_square(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('R'))
+
+        game.make_move(chess.D4, chess.F4)
+        assert game.board.piece_at(chess.F4) == chess.Piece.from_symbol('R')
+
+    def test_capture_enemy_piece(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('R'))
+        game.board.set_piece_at(chess.F4, chess.Piece.from_symbol('p'))
+
+        game.make_move(chess.D4, chess.F4)
+        assert game.board.piece_at(chess.F4) == chess.Piece.from_symbol('R')
+
+    def test_capture_ally_piece_fails(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('R'))
+        game.board.set_piece_at(chess.F4, chess.Piece.from_symbol('P'))
+
+        game.make_move(chess.D4, chess.F4)
+        assert game.board.piece_at(chess.D4) == chess.Piece.from_symbol('P')
+
+class TestPawnMovement:
+    """Pawns should follow standard pawn movement rules"""
+
+
 class TestJumpCastLimit:
     """The Jump spell should only be able to be cast once per turn"""
 
