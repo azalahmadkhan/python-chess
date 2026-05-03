@@ -244,14 +244,82 @@ class TestQueenMovement:
         assert not game.make_move(chess.D3, chess.G3)
         assert not game.make_move(chess.D3, chess.G6)
 
+class TestKnightMovement:
+    """Knights should follow standard knight movement rules"""
+
+    def test_knight_L_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.E5, chess.Piece.from_symbol('N'))
+        assert game.make_move(chess.E5, chess.D7) # forward left
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.D7, chess.C5) # back left
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.C5, chess.D3) # back right
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.D3, chess.F4) # right forward
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.F4, chess.D5) # left forward
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.D5, chess.B4) # left backward
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.B4, chess.C6) # forward right
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.C6, chess.E5) # right backward
+
+    def test_knight_no_side_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('N'))
+        assert not game.make_move(chess.D4, chess.D5)
+        assert not game.make_move(chess.D4, chess.E4)
+        assert not game.make_move(chess.D4, chess.D3)
+        assert not game.make_move(chess.D4, chess.C4)
+
+    def test_knight_no_diagonal_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('N'))
+        assert not game.make_move(chess.D4, chess.C5)
+        assert not game.make_move(chess.D4, chess.E5)
+        assert not game.make_move(chess.D4, chess.C3)
+        assert not game.make_move(chess.D4, chess.E3)
+
+    def test_knight_can_jump_pieces(self):
+        game = SpellChessGame()
+        assert game.make_move(chess.B1, chess.C3)
+
 class TestKingMovement:
     """Kings should follow standard queen movement rules"""
 
-    def test_king_move_one_space(self):
+    def test_king_one_space_movement(self):
         game = SpellChessGame()
+        game.board.set_piece_at(chess.E3, chess.Piece.from_symbol('K'))
+        assert game.make_move(chess.E3, chess.D3)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.D3, chess.D4)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.D4, chess.E4)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.E4, chess.E3)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.E3, chess.D4)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.D4, chess.E5)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.E5, chess.F4)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.F4, chess.E3)
 
-    def test_king_no_two_space_moves(self):
+    def test_king_no_two_space_movement(self):
         game = SpellChessGame()
+        game.board.set_piece_at(chess.E5, chess.Piece.from_symbol('K'))
+        game.board.set_piece_at(chess.D3, chess.Piece.from_symbol('K'))
+        assert not game.make_move(chess.E5, chess.C5)
+        assert not game.make_move(chess.E5, chess.C3)
+        assert not game.make_move(chess.E5, chess.E3)
+        assert not game.make_move(chess.E5, chess.G3)
+        assert not game.make_move(chess.E5, chess.G5)
+        assert not game.make_move(chess.D3, chess.B5)
+        assert not game.make_move(chess.D3, chess.D5)
+        assert not game.make_move(chess.D3, chess.F5)
 
 class TestCastling:
     """Kings and rooks should be able to castle following standard chess castling rules"""
