@@ -130,7 +130,7 @@ class TestJumpSelectedPieceColor:
         game.make_move(chess.E2, chess.E4)
 
         # Black Turn - cast jump on white piece
-        assert not game.cast_jump(chess.C8, chess.C6)
+        assert not game.cast_jump(chess.C1, chess.C3)
 
 class TestJumpSelectedEmpty:
     """The Jump spell should not be able to cast on an empty square"""
@@ -146,8 +146,8 @@ class TestJumpSelectedKing:
         game = SpellChessGame()
         assert not game.cast_jump(chess.E1, chess.E3)
 
-class TestJumpDestinationEmpty:
-    """The Jump spell should only allow an empty destination"""
+class TestJumpDestinationOccupied:
+    """The Jump spell should not work if the destination square is occupied"""
 
     def test_cant_jump_to_ally_piece(self):
         game = SpellChessGame()
