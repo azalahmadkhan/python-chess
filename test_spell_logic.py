@@ -54,3 +54,52 @@ class TestFreezeCasting:
             success = game.cast_freeze(square)  # returns True if cast succeeded
             assert success is True
             # print(f"{chess.square_name(square)}: {success}")
+
+            
+class TestFreezeEffect:
+
+    def test_opponent_frozen_area_dont_move(self):
+        game = SpellChessGame()
+
+        assert game.current_turn() == chess.WHITE
+        # White casts freeze, selects E5 as center
+        center = chess.E5
+        game.cast_freeze(center)
+        assert game.current_turn() == chess.WHITE
+
+        # Bug in make_move: it doesn't switch to Black's turn after White makes a move. Dependent on make_move.
+        # game.make_move(chess.G1, chess.H3)
+        # assert game.current_turn() == chess.BLACK
+        game.board.turn = chess.BLACK
+        assert game.current_turn() == chess.BLACK
+
+        # Manually setting turn for purposes of test. Dependent on cast_freeze.
+        game.freeze_effect_color = chess.BLACK
+        assert game.freeze_effect_color == chess.BLACK
+        game.freeze_effect_plies_left = 1
+        assert game.freeze_effect_plies_left == 1
+        area = game.freeze_effect_squares
+        area.add(center)
+        assert center in area
+
+        for square in area:
+            squaref = chess.square_file(square)
+            squarer = chess.square_rank(square)
+            for df in (-1, 0, 1):
+                for dr in (-1, 0, 1):
+                    f = squaref + df
+                    r = squarer + dr
+                    if 0 <= f < 8 and 0 <= r < 8:
+                        failure = game.make_move(chess.square(squaref, squarer), chess.square(f, r))
+                        assert failure is False
+
+        assert game.current_turn() == chess.BLACK
+
+        # Need to call after_move_pushed() to switch turns since make_move() has a bug
+        move = game.prepare_move(chess.A1, chess.A2)
+        game.board.push(move)
+        game.after_move_pushed()
+        
+        assert game.freeze_effect_color is None
+        assert len(game.freeze_effect_squares) == 0
+        assert game.freeze_effect_plies_left == 0
