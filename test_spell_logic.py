@@ -158,14 +158,100 @@ class TestPawnPromotion:
 class TestRookMovement:
     """Rooks should follow standard rook movement rules"""
 
+    def test_rook_side_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('R'))
+        assert game.make_move(chess.D4, chess.G4)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.G4, chess.G6)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.G6, chess.C6)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.C6, chess.C3)
+
+    def test_rook_no_diagonal_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('R'))
+        assert not game.make_move(chess.D4, chess.C5)
+        assert not game.make_move(chess.D4, chess.E5)
+        assert not game.make_move(chess.D4, chess.C3)
+        assert not game.make_move(chess.D4, chess.E3)
+
+    def test_rook_blocked_by_piece(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D3, chess.Piece.from_symbol('R'))
+        game.board.set_piece_at(chess.F3, chess.Piece.from_symbol('p'))
+        assert not game.make_move(chess.D3, chess.G3)
+
 class TestBishopMovement:
     """Bishops should follow standard bishop movement rules"""
+
+    def test_bishop_diagonal_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('B'))
+        assert game.make_move(chess.D4, chess.E3)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.E3, chess.G5)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.G5, chess.E7)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.E7, chess.B4)
+
+    def test_bishop_no_side_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('B'))
+        assert not game.make_move(chess.D4, chess.D5)
+        assert not game.make_move(chess.D4, chess.E4)
+        assert not game.make_move(chess.D4, chess.D3)
+        assert not game.make_move(chess.D4, chess.C4)
+
+    def test_bishop_blocked_by_piece(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D3, chess.Piece.from_symbol('B'))
+        game.board.set_piece_at(chess.F5, chess.Piece.from_symbol('p'))
+        assert not game.make_move(chess.D3, chess.G6)
 
 class TestQueenMovement:
     """Queens should follow standard queen movement rules"""
 
+    def test_queen_side_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('Q'))
+        assert game.make_move(chess.D4, chess.G4)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.G4, chess.G6)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.G6, chess.C6)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.C6, chess.C3)
+
+    def test_queen_diagonal_movement(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D4, chess.Piece.from_symbol('Q'))
+        assert game.make_move(chess.D4, chess.E3)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.E3, chess.G5)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.G5, chess.E7)
+        game.board.turn = chess.WHITE
+        assert game.make_move(chess.E7, chess.B4)
+
+    def test_bishop_blocked_by_piece(self):
+        game = SpellChessGame()
+        game.board.set_piece_at(chess.D3, chess.Piece.from_symbol('Q'))
+        game.board.set_piece_at(chess.F3, chess.Piece.from_symbol('p'))
+        game.board.set_piece_at(chess.F5, chess.Piece.from_symbol('p'))
+        assert not game.make_move(chess.D3, chess.G3)
+        assert not game.make_move(chess.D3, chess.G6)
+
 class TestKingMovement:
     """Kings should follow standard queen movement rules"""
+
+    def test_king_move_one_space(self):
+        game = SpellChessGame()
+
+    def test_king_no_two_space_moves(self):
+        game = SpellChessGame()
 
 class TestCastling:
     """Kings and rooks should be able to castle following standard chess castling rules"""
