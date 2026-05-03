@@ -120,13 +120,78 @@ class TestNoLegalUnfrozenMoves:
     
 class TestVisualDisplay:
     
-    def test_white_in_check(self):
+    def test_in_check(self):
         game = SpellChessGame()
         # Manually Move King into Check
         king = game.board.remove_piece_at(chess.E1)
         game.board.set_piece_at(chess.E6,king)
+        status_text = game.status_text()
+        assert "check" in status_text
+    
+    def test_no_check(self):
+        game = SpellChessGame()
+        status_text = game.status_text()
+        assert "check" not in status_text
         
+    def test_current_no_check(self):
+        game = SpellChessGame()
+        # Manually Move White King into Check
+        king = game.board.remove_piece_at(chess.E1)
+        game.board.set_piece_at(chess.E6,king)
+        #Manually make current player Black
+        game.board.turn = chess.BLACK
+        status_text = game.status_text()
+        assert "check" not in status_text
+    
+    def test_freeze_label_shows_remaining_cooldown(self):
+        #Compare displayed cooldown to actual cooldown
+        game = SpellChessGame()
+        game.cast_freeze(chess.E5)
+        freeze_info = game.freeze_info_text()
+        assert f"cooldown {game.freeze_cooldown[game.board.turn]}" in freeze_info
         
     
-    def test_black_in_check(self):
-        pass
+    def test_freeze_label_shows_remaining_cooldown_init(self):
+        #Compare displayed cooldown to actual cooldown
+        game = SpellChessGame()
+        freeze_info = game.freeze_info_text()
+        assert f"cooldown " not in freeze_info
+    
+    def test_freeze_label_shows_remaining_charges_init(self):
+        #Comparing the display to the actual system state not to the expected state, other tests handle that
+        game = SpellChessGame()
+        game.cast_freeze(chess.E5)
+        freeze_info = game.freeze_info_text()
+        assert f"Freeze: {game.freeze_remaining[game.board.turn]}" in freeze_info
+        
+    
+    def test_freeze_label_shows_remaining_charges(self):
+        game = SpellChessGame()
+        game.cast_freeze(chess.E5)
+        freeze_info = game.freeze_info_text()
+        assert f"Freeze: {game.freeze_remaining[game.board.turn]}" in freeze_info
+        
+    
+    def test_shows_pieces_frozen(self):
+        game = SpellChessGame()
+        game.cast_freeze(chess.E5)
+        #because of the incorrect way freeze functions white pieces are frozen
+        freeze_info = game.freeze_info_text()
+        assert game.freeze_effect_color == chess.WHITE
+        assert " — pieces in area are frozen" in freeze_info 
+        
+    def test_shows_pieces_not_frozen(self):
+        game = SpellChessGame()
+        game.cast_freeze(chess.E5)
+        #because of the incorrect way freeze functions black pieces are not frozen
+        freeze_info = game.freeze_info_text()
+        #Manually make current player Black
+        game.board.turn = chess.BLACK
+        assert game.freeze_effect_color == chess.WHITE
+        assert "— pieces in area are frozen" not in freeze_info 
+        
+    def test_shows_no_freeze(self):
+        game = SpellChessGame()
+        freeze_info = game.freeze_info_text()
+        assert game.freeze_effect_color == None
+        assert "— pieces in area are frozen" not in freeze_info 
