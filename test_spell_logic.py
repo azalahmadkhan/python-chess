@@ -231,6 +231,56 @@ class TestJumpCantCapture:
         game.cast_jump(chess.E2, chess.E4)
         assert game.board.piece_at(chess.E4) == chess.Piece.from_symbol('p')
 
+class TestFreezeCharges:
+    """Each side begins the game with 5 freeze charges. 
+    After casting a freeze spell, remaining charges reduces by 1. 
+    Cannot cast a freeze spell if remaining charges is zero. """
+
+    def test_white_freeze_charges(self):
+        game = SpellChessGame()
+        assert game.freeze_remaining[chess.WHITE]== 5
+        
+    def test_black_freeze_charges(self):
+        game = SpellChessGame()
+        assert game.freeze_remaining[chess.BLACK]== 5
+    
+    def test_freeze_charge_reduce(self):
+        game = SpellChessGame()
+        initial_charges = game.freeze_remaining[chess.WHITE] 
+        game.cast_freeze(chess.H8)
+        assert game.freeze_remaining[chess.WHITE] == initial_charges - 1  
+        
+    def test_cannot_freeze_zero_charges(self):
+        game = SpellChessGame()
+        game.freeze_remaining[chess.WHITE]=0
+        success = game.cast_freeze(chess.H8)
+        assert success is False, "Cannot cast Freeze spell, when th echarges remaining is zero"
+         
+class TestJumpCharges:
+    """Each side begins the game with 3 jump charges.
+    After casting a jump spell, remaining charges reduces by 1. 
+    Cannot cast a jump spell if remaining charges is zero. """
+
+    def test_white_jump_charges(self):
+        game = SpellChessGame()
+        assert game.jump_remaining[chess.WHITE]== 3
+
+    def test_black_jump_charges(self):
+        game = SpellChessGame()
+        assert game.jump_remaining[chess.BLACK]== 3
+
+    def test_jump_charge_reduce(self):
+        game = SpellChessGame()
+        initial_charges = game.jump_remaining[chess.WHITE] 
+        game.cast_jump(chess.G2, chess.G4)
+        assert game.jump_remaining[chess.WHITE] == initial_charges - 1
+        
+    def test_cannot_jump_zero_charges(self):
+        game = SpellChessGame()
+        game.jump_remaining[chess.WHITE]=0
+        success = game.cast_jump(chess.G2, chess.G4)
+        assert success is False, "Cannot cast Jump spell, when th echarges remaining is zero"
+
 
 
 
