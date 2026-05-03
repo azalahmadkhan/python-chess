@@ -149,56 +149,60 @@ class TestJumpSelectedKing:
 class TestJumpDestinationEmpty:
     """The Jump spell should only allow an empty destination"""
 
-    def test_cant_jump_to_ally_destination(self):
+    def test_cant_jump_to_ally_piece(self):
         game = SpellChessGame()
         assert not game.cast_jump(chess.B1, chess.D1)
 
-    def test_cant_jump_to_opponent_destination(self):
+    def test_cant_jump_to_opponent_piece(self):
         game = SpellChessGame()
         game.board.set_piece_at(chess.E4, chess.Piece.from_symbol('p'))
         assert not game.cast_jump(chess.E2, chess.E4)
 
-class TestJumpOutsideChebyshevDistance:
+class TestJumpChebyshevDistance:
     """The Jump spell should only be able to cast within chebyshev distance 2"""
 
-    def test_cant_jump_3_vertical_up(self):
+    def test_cant_jump_3_forward(self):
         game = SpellChessGame()
         assert not game.cast_jump(chess.E2, chess.E5)
 
-    def test_cant_jump_3_vertical_down(self):
+    def test_cant_jump_3_backward(self):
         game = SpellChessGame()
         game.board.set_piece_at(chess.E6, chess.Piece.from_symbol('P'))
         assert not game.cast_jump(chess.E6, chess.E3)
 
-    def test_cant_jump_3_horizontal_right(self):
+    def test_cant_jump_3_right(self):
         game = SpellChessGame()
         game.board.set_piece_at(chess.E3, chess.Piece.from_symbol('P'))
         assert not game.cast_jump(chess.E3, chess.H3)
 
-    def test_cant_jump_3_horizontal_left(self):
+    def test_cant_jump_3_left(self):
         game = SpellChessGame()
         game.board.set_piece_at(chess.E3, chess.Piece.from_symbol('P'))
         assert not game.cast_jump(chess.E3, chess.B3)
 
-    def test_jump_helper_respects_distance(self):
+    def test_jump_helper_all_less_than_3(self):
         game = SpellChessGame()
         squares = squares_in_jump_range(chess.E4)
         for square in squares:
             assert max(abs(chess.square_file(chess.E2)) - abs(chess.square_file(square)), abs(chess.square_rank(chess.E2)) - abs(chess.square_rank(square))) <= 2
 
+    def test_jump_helper_24_squares(self):
+        game = SpellChessGame()
+        squares = squares_in_jump_range(chess.E4)
+        assert len(squares) == 24
+
 class TestJumpTeleportsPiece:
     """The Jump spell should teleport the selected piece to the destination"""
 
-    def test_piece_no_longer_in_original_place(self):
+    def test_jump_piece_no_longer_in_original_square(self):
         game = SpellChessGame()
         game.cast_jump(chess.E2, chess.D4)
         assert game.board.piece_at(chess.E2) == None
 
-    def test_piece_in_destination(self):
+    def test_jump_piece_in_destination_square(self):
         game = SpellChessGame()
-        piece = game.board.piece_at(chess.E2)
         game.cast_jump(chess.E2, chess.D4)
-        assert game.board.piece_at(chess.D4) == piece
+        assert game.board.piece_at(chess.D4) == chess.Piece.from_symbol('P')
 
 class TestJumpIgnoresPiecesBetween:
     """The Jump spell should teleport the selected piece, ignoring pieces between original position and destination"""
@@ -209,20 +213,19 @@ class TestJumpIgnoresPiecesBetween:
 
     def test_jump_piece_between_unchanged(self):
         game = SpellChessGame()
-        between_piece = game.board.piece_at(chess.D2)
         game.cast_jump(chess.D1, chess.D3)
-        assert game.board.piece_at(chess.D2) == between_piece
+        assert game.board.piece_at(chess.D2) == chess.Piece.from_symbol('P')
 
 class TestJumpCantCapture:
     """The Jump spell should be unable to capture other pieces"""
 
-    def test_jump_capture_selected_piece_not_moved(self):
+    def test_jump_capture_attempted_selected_piece_not_moved(self):
         game = SpellChessGame()
         game.board.set_piece_at(chess.E4, chess.Piece.from_symbol('p'))
         game.cast_jump(chess.E2, chess.E4)
         assert game.board.piece_at(chess.E2) == chess.Piece.from_symbol('P')
 
-    def test_jump_capture_enemy_piece_unchanged(self):
+    def test_jump_capture_attempted_enemy_piece_unchanged(self):
         game = SpellChessGame()
         game.board.set_piece_at(chess.E4, chess.Piece.from_symbol('p'))
         game.cast_jump(chess.E2, chess.E4)
