@@ -97,27 +97,36 @@ class TestFreezeArea:
 class TestNoLegalUnfrozenMoves:        
     def test_king_in_check(self):
         game = SpellChessGame()
-        game.board.set_piece_at(chess.E6,chess.KING,chess.WHITE) #put the king in a position where it must move
+        king = game.board.remove_piece_at(chess.E1)
+        game.board.set_piece_at(chess.E6,king) #put the king in a position where it must move
         game.cast_freeze(chess.E5) 
         # Freeze the king's square, because of the bugged way freeze works White's freeze is needed to freeze White pieces 
         # And the center piece cannot be E6
         legal_moves = game.get_legal_moves()
-        assert legal_moves == None
+        assert legal_moves == []
     def test_all_pieces_frozen(self):
-        pass
+        game = SpellChessGame()
+        # Manually set every white piece to be frozen, by adding all their squares to frozen square set
+        game.freeze_effect_color = chess.WHITE
+        game.freeze_effect_plies_left = 2
+        game.freeze_cooldown[chess.WHITE] = 2
+        
+        game.freeze_effect_squares = set((chess.A1,chess.B1,chess.C1,chess.D1,chess.E1,chess.F1,chess.G1,chess.H1,
+                                          chess.A2,chess.B2,chess.C2,chess.D2,chess.E2,chess.F2,chess.G2,chess.H2))
+        
+        # See if any legal moves are available
+        legal_moves = game.get_legal_moves()
+        assert legal_moves == []
     
 class TestVisualDisplay:
-    def test_correct_turn_at_start(self):
-        pass
-    
-    def check_correct_turn_move_two(self):
-        pass
-    
-    def check_correct_turn_move_three(self):
-        pass
     
     def test_white_in_check(self):
-        pass
+        game = SpellChessGame()
+        # Manually Move King into Check
+        king = game.board.remove_piece_at(chess.E1)
+        game.board.set_piece_at(chess.E6,king)
+        
+        
     
     def test_black_in_check(self):
         pass
