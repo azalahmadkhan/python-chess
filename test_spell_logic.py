@@ -71,7 +71,6 @@ class TestMovement:
 
         game.make_move(chess.D4, chess.F4)
         assert game.board.piece_at(chess.D4) == None
-
     
     def test_moved_piece_at_destination_square(self):
         game = SpellChessGame()
@@ -99,6 +98,29 @@ class TestMovement:
 class TestPawnMovement:
     """Pawns should follow standard pawn movement rules"""
 
+class TestPawnCapturing:
+    """Pawns should follow standard pawn capturing rules"""
+
+class TestPawnEnPassant:
+    """En passant should work properly as a pawn capturing move"""
+
+class TestPawnPromotion:
+    """Pawns should be able to promote to another piece upon reaching the final rank"""
+
+class TestRookMovement:
+    """Rooks should follow standard rook movement rules"""
+
+class TestBishopMovement:
+    """Bishops should follow standard bishop movement rules"""
+
+class TestQueenMovement:
+    """Queens should follow standard queen movement rules"""
+
+class TestKingMovement:
+    """Kings should follow standard queen movement rules"""
+
+class TestCastling:
+    """Kings and rooks should be able to castle following standard chess castling rules"""
 
 class TestJumpCastLimit:
     """The Jump spell should only be able to be cast once per turn"""
