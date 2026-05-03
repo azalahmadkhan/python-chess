@@ -86,3 +86,31 @@ class TestNewGameReset:
         assert game.freeze_cooldown[chess.BLACK] == 0;
         assert game.jump_cooldown[chess.WHITE] == 0;
         assert game.jump_cooldown[chess.BLACK] == 0;
+        
+    def test_freeze_includes_bordering_squares(self):
+        for center in chess.SQUARES:
+            # print(f"Test {chess.square_rank(center)} {chess.square_file(center)} {chess.square_name(center)}")
+            square = squares_in_3x3(center)
+            for s in square:
+                dist = chess.square_distance(center, s)
+                assert dist <= 1
+
+    def test_freeze_includes_center(self):
+        for square in chess.SQUARES:
+            area = squares_in_3x3(square)
+            # print(f"{chess.square_name(square)}")
+            assert square in area
+            
+class TestKingJump:
+    "The king cannot be selected for use with jump spell."
+
+    def test_king_cannot_jump(self):
+        game = SpellChessGame()
+        assert game.cast_jump(chess.E1, chess.E3) is False
+        
+class TestJumpRange:
+    "Chebyshev distance 3 should be rejected."
+
+    def test_over_chebyshev_range(self):
+        game = SpellChessGame()
+        assert game.cast_jump(chess.B1, chess.B4) is False
