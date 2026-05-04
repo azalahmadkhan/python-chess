@@ -179,17 +179,6 @@ class TestStandardChessRules:
         assert game.board.piece_at(chess.E4).piece_type == chess.PAWN #check that it now has a pawn at E4
         assert game.board.piece_at(chess.E4).color == chess.WHITE
 
-    # def test_captures_work(self):
-    #     game = SpellChessGame()
-
-    #     assert game.make_move(chess.E2, chess.E4) is True
-    #     assert game.make_move(chess.D7, chess.D5) is True
-    #     assert game.make_move(chess.E4, chess.D5) is True
-
-    #     piece = game.board.piece_at(chess.D5)
-    #     assert piece.piece_type == chess.PAWN
-    #     assert piece.color == chess.WHITE
-
     def test_check_is_detected(self):
         """test if the game can detect a check"""
         game = SpellChessGame()
@@ -201,20 +190,6 @@ class TestStandardChessRules:
         game.board.turn = chess.BLACK
 
         assert game.board.is_check() is True
-
-    # def test_checkmate_is_detected(self):
-    #     """test if the game can detect a checkmate"""
-    #     game = SpellChessGame()
-    #     #check that each move goes through properly
-    #     assert game.make_move(chess.F2, chess.F3) is True
-    #     game.board.turn = chess.BLACK
-    #     assert game.make_move(chess.E7, chess.E5) is True
-    #     game.board.turn = chess.WHITE
-    #     assert game.make_move(chess.G2, chess.G4) is True
-    #     game.board.turn = chess.BLACK
-    #     assert game.make_move(chess.D8, chess.H4) is True
-
-    #     assert game.board.is_checkmate() is True
 
 class TestCheckmate:
     """test if the game can recognize a checkmate"""
@@ -283,17 +258,6 @@ class TestStalemates:
         assert outcome.winner == None
         assert outcome.termination == chess.Termination.STALEMATE
 
-# class TestCastling:
-#     """check that the game properly performs castling"""
-#     def test_castling_pawn(self):
-#         game = SpellChessGame()
-#         # game.board.clear_board()
-#         assert game.make_move(chess.H2, chess.H4)
-#         assert game.make_move(chess.G7, chess.G5)
-#         assert game.make_move(chess.H4, chess.G5)
-#         assert game.make_move(chess.H1, chess.H3)
-#         assert game.make_move(chess.H3, chess.F3)
-
 class TestCastling:
     """check that the game properly performs castling"""
     def test_castling_pawn(self):
@@ -332,7 +296,6 @@ class TestPawnPromotion:
     """test pawn promotion special move"""
     def test_pawn_promotion_queen(self):
         game = SpellChessGame()
-        # game.board.clear_board()
         #move pieces out of the way
         assert game.make_move(chess.H2, chess.H4) == True
         assert game.make_move(chess.H1, chess.H3) == True
@@ -361,12 +324,4 @@ class TestPawnPromotion:
 
 
 
-# maybe add more capture tests and stalemate tests
-#add castling checks that verify you cannot castle through check, cannot castle if king has moved
-#cannot castle if rook has moved, cannot castle while in check
-#add test checking that castling does not work if one of the pieces has moved already
-#add test checking that en passant does not work if it is not the turn immedietly following
-#check that a pawn can only move 2 squares in the beginning
-#check that all the pieces move correctly
-#add pawn promotion checks for different pieces
 
