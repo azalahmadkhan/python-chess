@@ -95,6 +95,7 @@ class TestFreezeCharges:
         result = game.cast_freeze(chess.E5)
         assert result is True
 
+
 # ================================================================== #
 #  Freeze Spell — Cooldown                                           #
 # ================================================================== #
@@ -140,23 +141,135 @@ class TestFreezeCooldown:
         result = game.cast_freeze(chess.D4)
         assert result is True
 
+
 # ================================================================== #
 #  Freeze Spell — Once Per Turn                                      #
 # ================================================================== #
 
 class TestFreezeOncePerTurn:
+    """A player may cast Freeze at most once per turn."""
+
+    def test_freeze_blocked_on_second_cast_same_turn(self):
+        """
+        TC-07 | Spec: 'A player may cast Freeze once per turn.'
+        Setup: cast Freeze once successfully.
+        Action: attempt a second cast on the same turn.
+        Expected: second cast returns False.
+        DEFECT: cast_freeze never sets spell_casted_this_turn = True,
+                so the guard never fires and the second cast succeeds.
+        """
+        game = SpellChessGame()
+        game.cast_freeze(chess.E5)
+        result = game.cast_freeze(chess.D4)
+        assert result is False
+
 
 # ================================================================== #
 #  Freeze Spell — Area                                               #
 # ================================================================== #
 
 class TestFreezeArea:
+    """The 3×3 freeze area is centred on the chosen square and includes that square."""
+
+    def test_freeze_area_includes_center_square(self):
+        """
+        TC-08 | Spec: 'The player selects any square… as the center of a 3×3 area.'
+                The area must include the center.
+        DEFECT: squares_in_3x3 skips df==0 and dr==0, excluding the center.
+        """
+        center = chess.E4
+        area = squares_in_3x3(center)
+        assert center in area
+
+    def test_freeze_area_has_nine_squares_for_interior_center(self):
+        """
+        TC-08b | Spec: 'up to 9 squares in the middle of the board.'
+        An interior center (E4) must produce exactly 9 squares.
+        DEFECT: only 8 returned because center is excluded.
+        """
+        area = squares_in_3x3(chess.E4)
+        assert len(area) == 9
+
+    def test_freeze_area_corner_has_fewer_squares(self):
+        """TC-08c | Spec: 'fewer on edges/corners.' Corner A1 must yield < 9 squares."""
+        area = squares_in_3x3(chess.A1)
+        assert len(area) < 9
+
+    def test_freeze_area_edge_has_fewer_squares(self):
+        """TC-08d | Spec: 'fewer on edges/corners.' Edge A4 must yield < 9 squares."""
+        area = squares_in_3x3(chess.A4)
+        assert len(area) < 9
+
+    def test_freeze_area_includes_all_eight_neighbours(self):
+        """TC-08e | All 8 surrounding squares of E4 must be in the area."""
+        area = squares_in_3x3(chess.E4)
+        neighbours = {
+            chess.D3, chess.E3, chess.F3,
+            chess.D4,           chess.F4,
+            chess.D5, chess.E5, chess.F5,
+        }
+        for sq in neighbours:
+            assert sq in area
+
 
 # ================================================================== #
 #  Freeze Spell — Effect                                             #
 # ================================================================== #
 
 class TestFreezeEffect:
+    """Frozen pieces cannot be moved; the effect lasts exactly 1 of the opponent's turns."""
+
+    def test_frozen_piece_excluded_from_legal_moves(self):
+        """
+        TC-09 | Spec: 'All opponent pieces whose square falls inside the frozen area
+        cannot be moved on the opponent's next turn.'
+        State set manually so Black's e7 pawn square is frozen.
+        Expected: E7 absent from get_legal_moves() when it is Black's turn.
+        """
+        game = SpellChessGame()
+        game.freeze_effect_color = chess.BLACK
+        game.freeze_effect_squares = squares_in_3x3(chess.E7)
+        game.freeze_effect_plies_left = 1
+        game.board.turn = chess.BLACK
+        legal_origins = {m.from_square for m in game.get_legal_moves()}
+        assert chess.E7 not in legal_origins
+
+    def test_freeze_effect_clears_after_frozen_side_moves(self):
+        """
+        TC-10 | Spec: 'Duration: the freeze lasts for exactly 1 of the opponent's turns.'
+        Setup: Black is frozen with plies_left=1.
+        Action: Black makes a move; after_move_pushed() is called.
+        Expected: freeze_effect_color is None and plies_left == 0.
+        """
+        game = SpellChessGame()
+        game.freeze_effect_color = chess.BLACK
+        game.freeze_effect_squares = {chess.E7}
+        game.freeze_effect_plies_left = 1
+        game.board.turn = chess.BLACK
+        game.board.push_san("d5")   # push directly to bypass make_move bugs
+        game.after_move_pushed()
+        assert game.freeze_effect_plies_left == 0
+        assert game.freeze_effect_color is None
+
+    def test_is_frozen_true_for_opponent_square_in_area(self):
+        """
+        TC-11 | is_frozen(sq, color) must return True when that color is frozen
+        and sq is inside the frozen area.
+        State is set manually to isolate from cast_freeze bugs.
+        """
+        game = SpellChessGame()
+        game.freeze_effect_color = chess.BLACK
+        game.freeze_effect_squares = squares_in_3x3(chess.E5)
+        game.freeze_effect_plies_left = 1
+        assert game.is_frozen(chess.E5, chess.BLACK) is True
+
+    def test_is_frozen_false_for_caster_color(self):
+        """TC-11b | is_frozen must return False for the caster's color (WHITE)."""
+        game = SpellChessGame()
+        game.freeze_effect_color = chess.BLACK
+        game.freeze_effect_squares = squares_in_3x3(chess.E5)
+        game.freeze_effect_plies_left = 1
+        assert game.is_frozen(chess.E5, chess.WHITE) is False
 
 # ================================================================== #
 #  Jump Spell — Range                                                #
