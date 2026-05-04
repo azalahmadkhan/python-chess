@@ -641,3 +641,101 @@ Team 11
 | D-04 | TC-06 | `on_turn_start` lines 221–222 | `freeze_cooldown` is never decremented; only `jump_cooldown` is |
 | D-05 | TC-07 | `cast_freeze` missing line | `spell_casted_this_turn` never set to `True` (masked in practice by cooldown) |
 | D-06 | TC-08, TC-08b, TC-09, TC-11 | `squares_in_3x3` lines 48–50 | Guard `if df==0 and dr==0: continue` excludes the center square from the area |
+
+---
+
+## Module 2: Jump Spell
+
+### TC-12 — Jump Range (Chebyshev distance ≤ 2)
+
+#### Description
+Verify that `squares_in_jump_range()` returns squares within a Chebyshev distance of 2, excluding the origin.
+
+#### Test Inputs
+- Origin square: `chess.E4`
+
+#### Expected Results
+- All squares within 2 steps (e.g., C2, G6) are included.
+- `chess.E4` is NOT included.
+- Squares 3 steps away (e.g., E7, B4) are NOT included.
+
+#### Test Steps
+1. Call `area = squares_in_jump_range(chess.E4)`
+2. Assert `chess.E4 not in area`
+3. Assert `chess.C2 in area` and `chess.G6 in area`
+4. Assert `chess.E7 not in area`
+
+#### Owner
+Team 11
+
+---
+
+### TC-13 — Jump Starts with 3 Charges and Decrements
+
+#### Description
+Verify that each side starts with 3 Jump charges and successful casting decrements the count by 1.
+
+#### Expected Results
+- Initial: `game.jump_remaining[color] == 3`
+- After cast: `game.jump_remaining[color] == 2`
+
+#### Test Steps
+1. Create `game = SpellChessGame()`
+2. Assert `game.jump_remaining[chess.WHITE] == 3`
+3. Call `game.cast_jump(chess.B1, chess.C3)`
+4. Assert `game.jump_remaining[chess.WHITE] == 2`
+
+#### Owner
+Team 11
+
+---
+
+### TC-14 — Jump Cooldown Lifecycle
+
+#### Description
+Verify that Jump sets a 2-turn cooldown and decrements correctly at the start of the caster's turn.
+
+#### Expected Results
+- After cast: `game.jump_cooldown[chess.WHITE] == 2`
+- After one turn cycle: `game.jump_cooldown[chess.WHITE] == 1`
+
+#### Test Steps
+1. Call `game.cast_jump(chess.B1, chess.C3)`
+2. Assert `game.jump_cooldown[chess.WHITE] == 2`
+3. Set `game.board.turn = chess.WHITE`
+4. Call `game.on_turn_start()`
+5. Assert `game.jump_cooldown[chess.WHITE] == 1`
+
+#### Owner
+Team 11
+
+---
+
+### TC-15 — Jump Blocked on Second Cast Same Turn
+
+#### Description
+Verify that a player may not cast Jump more than once per turn.
+
+#### Test Steps
+1. Call `game.cast_jump(chess.B1, chess.C3)` (first cast)
+2. Call `result = game.cast_jump(chess.C3, chess.E4)` (second cast)
+3. Assert `result is False`
+
+#### Owner
+Team 11
+
+---
+
+### TC-16 — Jump Restrictions (No Kings, Empty Square)
+
+#### Description
+Verify that Jump cannot be cast on Kings or onto occupied squares.
+
+#### Test Steps
+1. Attempt `game.cast_jump(chess.E1, chess.E3)` (White King)
+2. Assert `result is False`
+3. Attempt `game.cast_jump(chess.B1, chess.B2)` (Target square occupied by pawn)
+4. Assert `result is False`
+
+#### Owner
+Team 11

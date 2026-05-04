@@ -276,30 +276,116 @@ class TestFreezeEffect:
 # ================================================================== #
 
 class TestJumpRange:
+    """The jump range is Chebyshev distance <= 2, excluding the origin."""
+
+    def test_jump_range_excludes_origin(self):
+        """TC-12a | Spec: 'excluding the origin itself'."""
+        origin = chess.E4
+        area = squares_in_jump_range(origin)
+        assert origin not in area
+
+    def test_jump_range_includes_distance_two(self):
+        """
+        TC-12b | Spec: 'at most 2 squares in any direction'.
+        Expected: C2 (file -2, rank -2) is in range.
+        DEFECT: squares_in_jump_range uses range(-3, 4), allowing distance 3.
+        """
+        area = squares_in_jump_range(chess.E4)
+        assert chess.C2 in area
+        assert chess.G6 in area
+
+    def test_jump_range_excludes_distance_three(self):
+        """
+        TC-12c | Spec: 'at most 2 squares'. E7 is 3 squares away (rank +3).
+        DEFECT: loops use range(-3, 4), which includes +/- 3.
+        """
+        area = squares_in_jump_range(chess.E4)
+        assert chess.E7 not in area
+
 
 # ================================================================== #
 #  Jump Spell — Charges                                              #
 # ================================================================== #
 
 class TestJumpCharges:
+    """Each side starts with 3 jump charges; each cast costs 1."""
+
+    def test_jump_initial_charges(self):
+        """TC-13a | Spec: 'Each side starts with 3 charges.'"""
+        game = SpellChessGame()
+        assert game.jump_remaining[chess.WHITE] == 3
+        assert game.jump_remaining[chess.BLACK] == 3
+
+    def test_jump_decrements_charge(self):
+        """TC-13b | Spec: 'each successful cast costs 1 charge'."""
+        game = SpellChessGame()
+        # White jumps knight B1 to C3
+        game.cast_jump(chess.B1, chess.C3)
+        assert game.jump_remaining[chess.WHITE] == 2
+
 
 # ================================================================== #
 #  Jump Spell — Cooldown                                             #
 # ================================================================== #
 
 class TestJumpCooldown:
+    """Jump has a 2-turn cooldown."""
+
+    def test_jump_cooldown_set_after_cast(self):
+        """
+        TC-14a | Spec: 'After casting there is a 2-turn cooldown.'
+        DEFECT: cast_jump sets cooldown to 1 instead of 2.
+        """
+        game = SpellChessGame()
+        game.cast_jump(chess.B1, chess.C3)
+        assert game.jump_cooldown[chess.WHITE] == 2
+
+    def test_jump_cooldown_decrements(self):
+        """TC-14b | Cooldown drops by 1 at start of caster's turn."""
+        game = SpellChessGame()
+        game.jump_cooldown[chess.WHITE] = 2
+        game.board.turn = chess.WHITE
+        game.on_turn_start()
+        assert game.jump_cooldown[chess.WHITE] == 1
+
 
 # ================================================================== #
 #  Jump Spell — Once Per Turn                                        #
 # ================================================================== #
 
 class TestJumpOncePerTurn:
+    """A player may cast Jump at most once per turn."""
+
+    def test_jump_blocked_on_second_cast(self):
+        """TC-15 | Spec: 'at most once per turn'."""
+        game = SpellChessGame()
+        game.cast_jump(chess.B1, chess.C3)
+        result = game.cast_jump(chess.C3, chess.E4)
+        assert result is False
+
 
 # ================================================================== #
 #  Jump Spell — Restrictions                                         #
 # ================================================================== #
 
 class TestJumpRestrictions:
+    """Jump cannot target Kings or occupied squares."""
+
+    def test_jump_cannot_target_king(self):
+        """TC-16a | Spec: 'except the King'."""
+        game = SpellChessGame()
+        # Attempt to jump White King E1 to E3
+        result = game.cast_jump(chess.E1, chess.E3)
+        assert result is False
+
+    def test_jump_destination_must_be_empty(self):
+        """
+        TC-16b | Spec: 'empty destination square'.
+        B1 Knight to B2 (occupied by Pawn).
+        """
+        game = SpellChessGame()
+        result = game.cast_jump(chess.B1, chess.B2)
+        assert result is False
 
 # ================================================================== #
 #  New Game Reset                                                    #
