@@ -39,110 +39,261 @@ Additional relevant data (e.g., tables, tools, configurations) may be included a
 
 ---
 
-# Test Case Example 
-Use this as a reference when you make your own! 
-*Delete before submission.*
+# Test Modules
 
-## SB-001 — Test Freeze Target
+## Module 1: Freeze Spell
+
+### TC-01 — Freeze Targets Opponent, Not Caster
 
 #### Description
-Verify that casting the Freeze spell targets the opponent's pieces and not the caster's.
+Verify that casting the Freeze spell records the opponent as the frozen color, not the caster.
 
 #### Test Inputs
-- Center square from the chessboard
+- Center square: `chess.E5`
 
 #### Expected Results
-- `game.freeze_effect_color` is `black`
+- `game.freeze_effect_color == chess.BLACK`
 
 #### Dependencies
-- Chess library
+- `python-chess` library
+- `SpellChessGame` from `spell_logic.py`
 
 #### Initialization
-- A new `SpellChessGame` instance is created
+- Create a new `SpellChessGame` instance (White to move by default)
 
 #### Test Steps
 1. Call `game.cast_freeze(chess.E5)`
-2. Verify the return value is `True`
-3. Check `game.freeze_effect_color`
-4. Verify `game.is_frozen(chess.E2, chess.WHITE)` returns `False`
-5. Verify `game.is_frozen(chess.E7, chess.BLACK)` returns `True` (E7 is within the 3x3 area)
+2. Assert `game.freeze_effect_color == chess.BLACK`
+
+#### Owner
+Team 11
 
 ---
 
-## E.1.1.1 — Get List of Students for Valid GPC in GRADS
+### TC-02 — Freeze Decrements Charge on Cast
 
 #### Description
-Ensures that a valid GPC can access a list of their students.
+Verify that casting the Freeze spell decrements the caster's charge count by 1.
 
 #### Test Inputs
-- StudentRecord database initialized with:
-  - 29 CSCE students
-  - 1 MATH student
-- User database initialized with CSCE GPC "ggay"
+- Center square: `chess.E5`
 
 #### Expected Results
-- A list of 29 CSCE students is returned
-- No exception is thrown
+- `game.freeze_remaining[chess.WHITE] == 4` (decremented from 5)
 
 #### Dependencies
-- None
+- `python-chess` library
+- `SpellChessGame` from `spell_logic.py`
 
 #### Initialization
-- All databases are loaded
-- User "ggay" is already set in the system
+- Create a new `SpellChessGame` instance (White starts with 5 freeze charges)
 
 #### Test Steps
-1. Request the list of students from GRADS
-2. Verify the list contains exactly 29 students
-3. Verify all students have department "CSCE"
+1. Call `game.cast_freeze(chess.E5)`
+2. Assert `game.freeze_remaining[chess.WHITE] == 4`
+
+#### Owner
+Team 11
 
 ---
 
-## E.1.1.2 — GPC Retrieves Student Record
+### TC-03a — White Starts with 5 Freeze Charges
 
 #### Description
-Ensures that a valid GPC can access the student record for a valid CSCE student.
+Verify that White begins the game with 5 freeze charges as specified.
 
 #### Test Inputs
-
-**Student Record:**
-- ID: rbob
-- First Name: Robert
-- Last Name: Bob
-- Department: CSCE
-- Term Began: Fall 2013
-- Degree Sought: PhD, Spring 2018
-- Previous Degrees: BS, Spring 2008
-- Advisor: Manton Matthews (CSCE)
-
-**Committee:**
-- Duncan Buell (CSCE)
-- Jason Bakos (CSCE)
-- Richard McGehee (MATH)
-
-**Courses Taken:**
-- nap734 — Naptime, 5 credits, Spring 2014, B
-- csce513 — Computer Architecture, 3 credits, Fall 2013, A
-- csce531 — Compiler Construction, 3 credits, Spring 2014, A
-
-**Milestones:**
-- Dissertation advisor selected
-- Dissertation committee formed
-
-**User:**
-- CSCE GPC "ggay"
-
-#### Expected Results
-- The student record for "rbob" is returned with correct values
-- No exception is thrown
-
-#### Dependencies
 - None
 
+#### Expected Results
+- `game.freeze_remaining[chess.WHITE] == 5`
+
+#### Dependencies
+- `python-chess` library
+- `SpellChessGame` from `spell_logic.py`
+
 #### Initialization
-- All databases are loaded
-- User "ggay" is already set in the system
+- Create a new `SpellChessGame` instance
 
 #### Test Steps
-1. Request the student record for "rbob" from GRADS
-2. Verify each field matches the expected values
+1. Read `game.freeze_remaining[chess.WHITE]`
+2. Assert the value equals `5`
+
+#### Owner
+Team 11
+
+---
+
+### TC-03b — Black Starts with 5 Freeze Charges
+
+#### Description
+Verify that Black begins the game with 5 freeze charges as specified.
+
+#### Test Inputs
+- None
+
+#### Expected Results
+- `game.freeze_remaining[chess.BLACK] == 5`
+
+#### Dependencies
+- `python-chess` library
+- `SpellChessGame` from `spell_logic.py`
+
+#### Initialization
+- Create a new `SpellChessGame` instance
+
+#### Test Steps
+1. Read `game.freeze_remaining[chess.BLACK]`
+2. Assert the value equals `5`
+
+#### Owner
+Team 11
+
+---
+
+### TC-03c — Freeze Blocked at Zero Charges
+
+#### Description
+Verify that a player cannot cast Freeze when they have 0 charges remaining.
+
+#### Test Inputs
+- `freeze_remaining[WHITE] = 0`
+- Center square: `chess.E5`
+
+#### Expected Results
+- `cast_freeze(chess.E5)` returns `False`
+
+#### Dependencies
+- `python-chess` library
+- `SpellChessGame` from `spell_logic.py`
+
+#### Initialization
+- Create a new `SpellChessGame` instance
+- Set `game.freeze_remaining[chess.WHITE] = 0`
+
+#### Test Steps
+1. Set `game.freeze_remaining[chess.WHITE] = 0`
+2. Call `result = game.cast_freeze(chess.E5)`
+3. Assert `result is False`
+
+#### Owner
+Team 11
+
+---
+
+### TC-03d — Freeze Returns True on Successful Cast
+
+#### Description
+Verify that `cast_freeze` returns `True` when all conditions for casting are satisfied.
+
+#### Test Inputs
+- Center square: `chess.E5`
+
+#### Expected Results
+- `cast_freeze(chess.E5)` returns `True`
+
+#### Dependencies
+- `python-chess` library
+- `SpellChessGame` from `spell_logic.py`
+
+#### Initialization
+- Create a new `SpellChessGame` instance (White to move, 5 charges, cooldown = 0)
+
+#### Test Steps
+1. Call `result = game.cast_freeze(chess.E5)`
+2. Assert `result is True`
+
+#### Owner
+Team 11
+
+---
+
+### TC-04 — Freeze Cooldown Set to 3 After Cast
+
+#### Description
+Verify that casting Freeze sets the caster's cooldown to 3 turns as specified.
+
+#### Test Inputs
+- Center square: `chess.E5`
+
+#### Expected Results
+- `game.freeze_cooldown[chess.WHITE] == 3`
+
+#### Dependencies
+- `python-chess` library
+- `SpellChessGame` from `spell_logic.py`
+
+#### Initialization
+- Create a new `SpellChessGame` instance (White to move)
+
+#### Test Steps
+1. Call `game.cast_freeze(chess.E5)`
+2. Assert `game.freeze_cooldown[chess.WHITE] == 3`
+
+#### Owner
+Team 11
+
+---
+
+### TC-05 — Freeze Blocked While on Cooldown
+
+#### Description
+Verify that a player cannot cast Freeze while their cooldown counter is greater than 0.
+
+#### Test Inputs
+- `freeze_cooldown[WHITE] = 2`
+- Center square: `chess.E5`
+
+#### Expected Results
+- `cast_freeze(chess.E5)` returns `False`
+
+#### Dependencies
+- `python-chess` library
+- `SpellChessGame` from `spell_logic.py`
+
+#### Initialization
+- Create a new `SpellChessGame` instance
+- Manually set `game.freeze_cooldown[chess.WHITE] = 2`
+
+#### Test Steps
+1. Set `game.freeze_cooldown[chess.WHITE] = 2`
+2. Call `result = game.cast_freeze(chess.E5)`
+3. Assert `result is False`
+
+#### Owner
+Team 11
+
+---
+
+### TC-05b — Freeze Can Be Cast After Cooldown Reaches Zero
+
+#### Description
+Verify that a player may cast Freeze again once their cooldown has returned to 0 and they have remaining charges.
+
+#### Test Inputs
+- `freeze_cooldown[WHITE] = 0`
+- `freeze_remaining[WHITE] = 3`
+- Center square: `chess.D4`
+
+#### Expected Results
+- `cast_freeze(chess.D4)` returns `True`
+
+#### Dependencies
+- `python-chess` library
+- `SpellChessGame` from `spell_logic.py`
+
+#### Initialization
+- Create a new `SpellChessGame` instance
+- Set `game.freeze_cooldown[chess.WHITE] = 0`
+- Set `game.freeze_remaining[chess.WHITE] = 3`
+
+#### Test Steps
+1. Set `game.freeze_cooldown[chess.WHITE] = 0`
+2. Set `game.freeze_remaining[chess.WHITE] = 3`
+3. Call `result = game.cast_freeze(chess.D4)`
+4. Assert `result is True`
+
+#### Owner
+Team 11
+
+---
